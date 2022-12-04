@@ -8,22 +8,13 @@ namespace advent_of_code_csharp.Source
     public class Day5 : IDay
     {
         public string Identifier => "day5";
-
-        public bool SameData => true;
-
-        private int ParseFirst(string line)
-        {
-            return 0;
-        }
-
-        private int ParseSecond(string line)
-        {
-            return 0;
-        }
+        private string[] _input = Array.Empty<string>();
 
         public void ProcessExample()
         {
-            var input = @"".Split(Environment.NewLine);
+            var input = @"
+
+            ".Split(Environment.NewLine);
 
             int result = 0;
             int result2 = 0;
@@ -42,11 +33,26 @@ namespace advent_of_code_csharp.Source
             Assert.AreEqual(0, result2);
         }
 
-        public void ProcessFirst(string[] input)
+        private int ParseFirst(string line)
+        {
+            return 0;
+        }
+
+        private int ParseSecond(string line)
+        {
+            return 0;
+        }
+
+        public void PopulateData(string[] lines)
+        {
+            _input = lines;
+        }
+
+        public void ProcessFirst()
         {
             int result = 0;
 
-            foreach(var line in input)
+            foreach(var line in _input)
             {
                 result += ParseFirst(line);
             }
@@ -55,12 +61,11 @@ namespace advent_of_code_csharp.Source
             Assert.AreEqual(0, result);
         }
 
-        public void ProcessSecond(string[] input)
+        public void ProcessSecond()
         {
-
             int result = 0;
 
-            foreach(var line in input)
+            foreach(var line in _input)
             {
                 result += ParseSecond(line);
             }

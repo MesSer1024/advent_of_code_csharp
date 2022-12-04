@@ -7,11 +7,11 @@ namespace advent_of_code_csharp.Source
 {
     public class Day3 : IDay
     {
+        private string[] _input = Array.Empty<string>();
+
         public string Identifier => "day3";
 
-        public bool SameData => true;
-
-        private int ParseRucksack(string input)
+        private int ParseFirst(string input)
         {
             var half = input.Length/2;
             var first = input.AsSpan()[..half];
@@ -38,7 +38,7 @@ namespace advent_of_code_csharp.Source
             return value;
         }
 
-        private int ParseRucksackSecond(Span<string> members)
+        private int ParseSecond(Span<string> members)
         {
             var member1 = members[0];
             var member2 = members[1];
@@ -78,12 +78,12 @@ CrZsJsPPZsGzwwsLwLmpwMDw".Split(Environment.NewLine);
 
             foreach(var line in input)
             {
-                result += ParseRucksack(line);
+                result += ParseFirst(line);
             }
 
             for(int i=0; i < input.Length; i+=3)
             {
-                result2 += ParseRucksackSecond(input[i..(i+3)]);
+                result2 += ParseSecond(input[i..(i+3)]);
             }
 
 
@@ -91,30 +91,34 @@ CrZsJsPPZsGzwwsLwLmpwMDw".Split(Environment.NewLine);
             Assert.AreEqual(70, result2);
         }
 
-        public void ProcessFirst(string[] input)
+        public void PopulateData(string[] lines)
+        {
+            _input = lines;
+        }
+
+        public void ProcessFirst()
         {
             int result = 0;
 
-            foreach(var line in input)
+            foreach(var line in _input)
             {
-                result += ParseRucksack(line);
+                result += ParseFirst(line);
             }
 
-            Console.WriteLine($"{Identifier} result is {result} ");
+            Console.WriteLine($"{Identifier}.1 result is {result} ");
             Assert.AreEqual(7817, result);
         }
 
-        public void ProcessSecond(string[] input)
+        public void ProcessSecond()
         {
-
             int result = 0;
 
-            for(int i=0; i < input.Length; i+=3)
+            for(int i=0; i < _input.Length; i+=3)
             {
-                result += ParseRucksackSecond(input[i..(i+3)]);
+                result += ParseSecond(_input[i..(i+3)]);
             }
 
-            Console.WriteLine($"{Identifier} result is {result} ");
+            Console.WriteLine($"{Identifier}.2 result is {result} ");
             Assert.AreEqual(2444, result);
         }
     }

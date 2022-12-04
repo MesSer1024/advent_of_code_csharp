@@ -8,57 +8,32 @@ namespace advent_of_code_csharp.Source
 
     public class Day1 : IDay
     {
-        public string Identifier { get { return "day1";}}
-        public bool SameData { get { return true;} }
+        public string Identifier => "day1";
 
-        private class Elf : IComparable<Elf>
+        private int aggregatedSum = 0;
+        List<int> outputs = new();
+
+        private int ParseFirst(string line)
         {
-            public int Calories;
-
-            public int CompareTo(Elf? other)
+            if (string.IsNullOrEmpty(line))
             {
-                return Calories > other?.Calories ? -1 : 1;
-            }
-        }
-
-
-        private string[] _inputPart1 = Array.Empty<string>();
-        List<Elf> _elves = new List<Elf>();
-
-        private void PopulateElves(string[] input)
-        {
-            _elves.Clear();
-            _elves.Add(new Elf());
-
-            foreach(var line in input)
-            {
-                if(String.IsNullOrEmpty(line))
-                {
-                    _elves.Add(new Elf());
-                    continue;
-                }
-
-                var idx = _elves.Count -1;
-                _elves[idx].Calories += int.Parse(line);
+                var output = aggregatedSum;
+                aggregatedSum = 0;
+                return output;
             }
 
-            _elves.Sort();
+            aggregatedSum += int.Parse(line);
+            return 0;
         }
 
-        private Elf FindBestElf()
+        private int ParseSecond(string line)
         {
-            return _elves[0];
-        }
-
-        private Tuple<Elf, Elf, Elf> Find3BestElves()
-        {
-
-            return new Tuple<Elf, Elf, Elf>(_elves[0], _elves[1], _elves[2]);
+            return 0;
         }
 
         public void ProcessExample()
         {
-        string[] example = @"1000
+            var input = @"1000
 2000
 3000
 
@@ -73,32 +48,67 @@ namespace advent_of_code_csharp.Source
 
 10000".Split(Environment.NewLine);
 
-            PopulateElves(example);
-            var best = FindBestElf();
+            int result = 0;
+            int result2 = 0;
+            List<int> outputs = new();
 
-            Assert.AreEqual(5, _elves.Count);
-            Assert.AreEqual(best.Calories, 24000);
+            foreach (var line in input)
+            {
+                int output = ParseFirst(line);
+                if (output > 0)
+                {
+                    outputs.Add(output);
+                }
+            }
+            outputs.Add(ParseFirst(""));
+
+            outputs.Sort();
+
+            result = outputs.Last();
+
+            foreach(var item in outputs.TakeLast(3))
+            {
+                result2 += item;
+            }
+
+            Assert.AreEqual(24000, result);
+            Assert.AreEqual(45000, result2);
         }
 
-        public void ProcessFirst(string[] input)
+        public void PopulateData(string[] input)
         {
-            _inputPart1 = input;
-            PopulateElves(input);
+            foreach (var line in input)
+            {
+                int output = ParseFirst(line);
+                if (output > 0)
+                {
+                    outputs.Add(output);
+                }
+            }
+            outputs.Add(ParseFirst(""));
 
-            var best = FindBestElf();
-
-            Console.WriteLine($"Day1_a: Calories = {best.Calories}");
-            Assert.AreEqual(69310, best.Calories);
+            outputs.Sort();
         }
 
-        public void ProcessSecond(string[] input)
+        public void ProcessFirst()
         {
-            var (a,b,c) = Find3BestElves();
+            int result = 0;
+            result = outputs.Last();
 
-            int calories = a.Calories + b.Calories + c.Calories;
+            Console.WriteLine($"{Identifier}.1 result is {result} ");
+            Assert.AreEqual(69310, result);
+        }
 
-            Console.WriteLine($"Day1_b: Calories = {calories}");
-            Assert.AreEqual(206104, calories);
+        public void ProcessSecond()
+        {
+            int result = 0;
+            foreach(var item in outputs.TakeLast(3))
+            {
+                result += item;
+            }
+
+            Console.WriteLine($"{Identifier}.2 result is {result} ");
+            Assert.AreEqual(206104, result);
         }
     }
 }

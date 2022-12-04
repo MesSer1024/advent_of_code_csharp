@@ -7,9 +7,9 @@ namespace advent_of_code_csharp.Source
 {
     public class Day4 : IDay
     {
-        public string Identifier => "day4";
+        private string[] _input = Array.Empty<string>();
 
-        public bool SameData => true;
+        public string Identifier => "day4";
 
         public void ProcessExample()
         {
@@ -113,30 +113,34 @@ namespace advent_of_code_csharp.Source
             return 0;
         }
 
-        public void ProcessFirst(string[] input)
+        public void PopulateData(string[] lines)
+        {
+            _input = lines;
+        }
+
+        public void ProcessFirst()
         {
             int result = 0;
 
-            foreach(var line in input)
+            foreach(var line in _input)
             {
                 result += ParsePair(line);
             }
 
-            Console.WriteLine($"{Identifier} result is {result} ");
+            Console.WriteLine($"{Identifier}.1 result is {result} ");
             Assert.AreEqual(424, result);
         }
 
-        public void ProcessSecond(string[] input)
+        public void ProcessSecond()
         {
-
             int result = 0;
 
-            foreach(var line in input)
+            foreach(var line in _input)
             {
                 result += ParsePairSecond(line);
             }
 
-            Console.WriteLine($"{Identifier} result is {result} ");
+            Console.WriteLine($"{Identifier}.2 result is {result} ");
             Assert.AreEqual(804, result);
         }
     }

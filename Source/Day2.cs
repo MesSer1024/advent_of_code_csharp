@@ -7,8 +7,13 @@ namespace advent_of_code_csharp.Source
 {
     public class Day2 : IDay
     {
+        private string[] _input = Array.Empty<string>();
+
         public string Identifier => "day2";
-        public bool SameData => true;
+
+        const int Loss = 0;
+        const int Draw = 3;
+        const int Win = 6;
 
         private enum Action
         {
@@ -38,10 +43,6 @@ namespace advent_of_code_csharp.Source
         public int ParseRound(string data)
         {
             if (data.Length != 3) throw new Exception();
-
-            const int Loss = 0;
-            const int Draw = 3;
-            const int Win = 6;
 
             var target = ParseAction(data[0]);
             var our = ParseAction(data[2]);
@@ -73,10 +74,6 @@ namespace advent_of_code_csharp.Source
         public int ParseRoundSecond(string data)
         {
             if (data.Length != 3) throw new Exception();
-
-            const int Loss = 0;
-            const int Draw = 3;
-            const int Win = 6;
 
             var target = ParseAction(data[0]);
             var wantedOutcome = data[2];
@@ -113,35 +110,48 @@ B X
 C Z".Split(Environment.NewLine);
 
             int result = 0;
+            int result2 = 0;
+
             foreach (var line in example)
             {
                 result += ParseRound(line);
             }
 
+            foreach (var line in example)
+            {
+                result2 += ParseRoundSecond(line);
+            }
+
             Assert.AreEqual(15, result);
+            Assert.AreEqual(12, result2);
         }
 
-        public void ProcessFirst(string[] input)
+        public void PopulateData(string[] lines)
+        {
+            _input = lines;
+        }
+
+        public void ProcessFirst()
         {
             int result = 0;
-            foreach (var line in input)
+            foreach (var line in _input)
             {
                 result += ParseRound(line);
             }
 
-            Console.WriteLine($"Day2_1 : result was {result}");
+            Console.WriteLine($"{Identifier}.1 : result was {result}");
             Assert.AreEqual(14531, result);
         }
 
-        public void ProcessSecond(string[] input)
+        public void ProcessSecond()
         {
             int result = 0;
-            foreach (var line in input)
+            foreach (var line in _input)
             {
                 result += ParseRoundSecond(line);
             }
 
-            Console.WriteLine($"Day2_2 : result was {result}");
+            Console.WriteLine($"{Identifier}.2 : result was {result}");
             Assert.AreEqual(11258, result);
         }
     }
