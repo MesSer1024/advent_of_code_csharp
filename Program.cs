@@ -50,9 +50,8 @@ namespace MyApp // Note: actual namespace depends on the project name.
 
         static void Main(string[] args)
         {
-            RunAll();
-            // var day = new Day5();
-            // Installer.Install(day);
+            // RunAll();
+            Installer.Install(new Day5());
         }
     }
 }
