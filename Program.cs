@@ -42,9 +42,9 @@ namespace MyApp // Note: actual namespace depends on the project name.
 
             foreach(var t in arr)
             {
-                var ctor = t.GetConstructor(Array.Empty<Type>());
-                var foo = (IDay)ctor.Invoke(null);
-                Installer.Install(foo);
+                var dayInstance = Activator.CreateInstance(t);
+                if(dayInstance == null) throw new Exception();
+                Installer.Install((IDay)dayInstance);
             }
         }
 
