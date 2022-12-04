@@ -33,7 +33,7 @@ namespace MyApp // Note: actual namespace depends on the project name.
         static void Main(string[] args)
         {
 
-            var day = new Day2();
+            var day = new Day3();
             Installer.Install(day);
 
         }
