@@ -9,69 +9,178 @@ namespace advent_of_code_csharp.Source
     {
         public string Identifier => "day5";
         private string[] _input = Array.Empty<string>();
+        private int _firstCommandLine = 0;
+        private Layout _layout = new Layout(9);
 
         public void ProcessExample()
         {
-            var input = @"
+            var input = @"    [D]
+[N] [C]
+[Z] [M] [P]
+ 1   2   3
 
-            ".Split(Environment.NewLine);
+move 1 from 2 to 1
+move 3 from 1 to 3
+move 2 from 2 to 1
+move 1 from 1 to 2".Split(Environment.NewLine);
 
-            int result = 0;
-            int result2 = 0;
+            PopulateData(input);
 
-            foreach(var line in input)
-            {
-                result += ParseFirst(line);
-            }
+            MoveAccordingToCommands();
+            var result = ReadCrates();
 
-            foreach(var line in input)
-            {
-                result2 += ParseSecond(line);
-            }
+            // second
+            PopulateData(input);
 
-            Assert.AreEqual(0, result);
-            Assert.AreEqual(0, result2);
+            MoveAccordingToCommandsSecond();
+            var result2 = ReadCrates();
+
+            Assert.AreEqual("CMZ", result);
+            Assert.AreEqual("MCD", result2);
         }
 
-        private int ParseFirst(string line)
+        private string ReadCrates()
         {
-            return 0;
+            string result = "";
+            foreach (var stack in _layout.Stacks)
+            {
+                result += stack.Last();
+            }
+
+            return result;
         }
 
-        private int ParseSecond(string line)
+        class Layout
         {
-            return 0;
+            public List<char>[] Stacks;
+
+            public Layout(int num)
+            {
+                if (num == 3)
+                {
+                    Stacks = new List<char>[3] { new(), new(), new() };
+                }
+                else
+                {
+                    Stacks = new List<char>[9];
+                    for (int i = 0; i < 9; ++i)
+                    {
+                        Stacks[i] = new List<char>();
+                    }
+                }
+            }
         }
 
         public void PopulateData(string[] lines)
         {
             _input = lines;
+            int rowIdx = 0;
+
+            while (true)
+            {
+                var line = lines[rowIdx++];
+                if (string.IsNullOrWhiteSpace(line))
+                {
+                    break;
+                }
+            }
+
+            _firstCommandLine = rowIdx;
+            if (lines.Length > 15)
+            {
+                _layout = new Layout(9);
+            }
+            else
+            {
+                _layout = new Layout(3);
+            }
+
+            rowIdx -= 3;
+            for (int i = rowIdx - 1; rowIdx >= 0; rowIdx--)
+            {
+                var line = _input[rowIdx];
+
+                for (int j = 0; j < _layout.Stacks.Length; j++)
+                {
+                    var begin = j * 4;
+                    var end = j * 4 + 3;
+                    if (end > line.Length)
+                    {
+                        break;
+                    }
+
+                    var part = line[begin..end];
+
+                    if (!string.IsNullOrWhiteSpace(part))
+                    {
+                        var stack = _layout.Stacks[j];
+                        var c = part[1];
+                        stack.Add(c);
+                    }
+                }
+            }
+        }
+
+        private void MoveAccordingToCommands()
+        {
+            foreach (var line in _input[_firstCommandLine..])
+            {
+                var parts = line.Split(' ');
+                var num = int.Parse(parts[1]);
+                var src = int.Parse(parts[3]) - 1;
+                var dest = int.Parse(parts[5]) - 1;
+
+                var input = _layout.Stacks[src];
+                var target = _layout.Stacks[dest];
+
+                for (int i = 0; i < num; i++)
+                {
+                    var lastIdx = input.Count - 1;
+                    var c = input[lastIdx];
+                    target.Add(c);
+
+                    input.RemoveAt(lastIdx);
+                }
+            }
+        }
+
+        private void MoveAccordingToCommandsSecond()
+        {
+            foreach (var line in _input[_firstCommandLine..])
+            {
+                var parts = line.Split(' ');
+                var num = int.Parse(parts[1]);
+                var src = int.Parse(parts[3]) - 1;
+                var dest = int.Parse(parts[5]) - 1;
+
+                var input = _layout.Stacks[src];
+                var target = _layout.Stacks[dest];
+
+                target.AddRange(input.TakeLast(num));
+                input.RemoveRange(input.Count-num, num);
+            }
         }
 
         public void ProcessFirst()
         {
-            int result = 0;
+            PopulateData(_input);
 
-            foreach(var line in _input)
-            {
-                result += ParseFirst(line);
-            }
+            MoveAccordingToCommands();
+            var result = ReadCrates();
 
             Console.WriteLine($"{Identifier} result is {result} ");
-            Assert.AreEqual(0, result);
+            Assert.AreEqual("WCZTHTMPS", result);
         }
 
         public void ProcessSecond()
         {
-            int result = 0;
+            PopulateData(_input);
 
-            foreach(var line in _input)
-            {
-                result += ParseSecond(line);
-            }
+            MoveAccordingToCommandsSecond();
+            var result = ReadCrates();
 
             Console.WriteLine($"{Identifier} result is {result} ");
-            Assert.AreEqual(0, result);
+            Assert.AreEqual("BLSGJSDTS", result);
         }
     }
 }
