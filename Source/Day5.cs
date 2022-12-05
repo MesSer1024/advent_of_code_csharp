@@ -58,16 +58,18 @@ move 1 from 1 to 2".Split(Environment.NewLine);
             {
                 if (num == 3)
                 {
-                    Stacks = new List<char>[3] { new(), new(), new() };
+                    Stacks = new List<char>[3];
                 }
                 else
                 {
                     Stacks = new List<char>[9];
-                    for (int i = 0; i < 9; ++i)
-                    {
-                        Stacks[i] = new List<char>();
-                    }
                 }
+
+                for (int i = 0; i < Stacks.Length; ++i)
+                {
+                    Stacks[i] = new List<char>();
+                }
+
             }
         }
 
@@ -133,14 +135,8 @@ move 1 from 1 to 2".Split(Environment.NewLine);
                 var input = _layout.Stacks[src];
                 var target = _layout.Stacks[dest];
 
-                for (int i = 0; i < num; i++)
-                {
-                    var lastIdx = input.Count - 1;
-                    var c = input[lastIdx];
-                    target.Add(c);
-
-                    input.RemoveAt(lastIdx);
-                }
+                target.AddRange(input.TakeLast(num).Reverse());
+                input.RemoveRange(input.Count - num, num);
             }
         }
 
@@ -157,7 +153,7 @@ move 1 from 1 to 2".Split(Environment.NewLine);
                 var target = _layout.Stacks[dest];
 
                 target.AddRange(input.TakeLast(num));
-                input.RemoveRange(input.Count-num, num);
+                input.RemoveRange(input.Count - num, num);
             }
         }
 
