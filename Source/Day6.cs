@@ -24,26 +24,24 @@ namespace advent_of_code_csharp.Source
                 input[i] = line.Trim();
             }
 
-            Assert.AreEqual(7, ParseFirst(input[0]));
-            Assert.AreEqual(5, ParseFirst(input[1]));
-            Assert.AreEqual(6, ParseFirst(input[2]));
-            Assert.AreEqual(10, ParseFirst(input[3]));
-            Assert.AreEqual(11, ParseFirst(input[4]));
+            Assert.AreEqual(7, Parse(input[0], 4));
+            Assert.AreEqual(5, Parse(input[1], 4));
+            Assert.AreEqual(6, Parse(input[2], 4));
+            Assert.AreEqual(10, Parse(input[3], 4));
+            Assert.AreEqual(11, Parse(input[4], 4));
 
-            Assert.AreEqual(19, ParseSecond(input[0]));
-            Assert.AreEqual(23, ParseSecond(input[1]));
-            Assert.AreEqual(23, ParseSecond(input[2]));
-            Assert.AreEqual(29, ParseSecond(input[3]));
-            Assert.AreEqual(26, ParseSecond(input[4]));
+            Assert.AreEqual(19, Parse(input[0], 14));
+            Assert.AreEqual(23, Parse(input[1], 14));
+            Assert.AreEqual(23, Parse(input[2], 14));
+            Assert.AreEqual(29, Parse(input[3], 14));
+            Assert.AreEqual(26, Parse(input[4], 14));
         }
 
-        private int ParseFirst(string line)
+        private int Parse(string line, int spanSize)
         {
-            const int NumRange = 4;
-
-            for (int i = 0; i + NumRange < line.Length; i++)
+            for (int i = 0; i + spanSize < line.Length; i++)
             {
-                var span = line[i..(i + NumRange)];
+                var span = line[i..(i + spanSize)];
                 bool isDuplicate = false;
 
                 for (int j = 0; j < span.Length; j++)
@@ -59,36 +57,7 @@ namespace advent_of_code_csharp.Source
 
                 if (!isDuplicate)
                 {
-                    return i + NumRange;
-                }
-            }
-
-            throw new Exception();
-        }
-
-        private int ParseSecond(string line)
-        {
-            const int NumRange = 14;
-
-            for (int i = 0; i + NumRange < line.Length; i++)
-            {
-                var span = line[i..(i + NumRange)];
-                bool isDuplicate = false;
-
-                for (int j = 0; j < span.Length; j++)
-                {
-                    var begin = span[j];
-                    var rest = span.Skip(j + 1);
-                    if (rest.Contains(begin))
-                    {
-                        isDuplicate = true;
-                        break;
-                    }
-                }
-
-                if (!isDuplicate)
-                {
-                    return i + NumRange;
+                    return i + spanSize;
                 }
             }
 
@@ -106,7 +75,7 @@ namespace advent_of_code_csharp.Source
 
             foreach (var line in _input)
             {
-                result += ParseFirst(line);
+                result += Parse(line, 4);
             }
 
             Console.WriteLine($"{Identifier}.1 result is {result} ");
@@ -119,7 +88,7 @@ namespace advent_of_code_csharp.Source
 
             foreach (var line in _input)
             {
-                result += ParseSecond(line);
+                result += Parse(line, 14);
             }
 
             Console.WriteLine($"{Identifier}.2 result is {result} ");
