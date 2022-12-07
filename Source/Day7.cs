@@ -72,24 +72,21 @@ $ ls
         private int ParseFirst(string[] lines)
         {
             int output = 0;
-            int nextLine = 0;
 
             // find all directories with a total size <= 100.000 (parent directory and child directory can both be unique entries)
             // sum the size of all filtered directories
 
+            if (lines[0] != "cd /") throw new Exception();
+            if (lines[1] != "$ ls") throw new Exception();
+
+            // setup root
+            Folder dir = new Folder("/", null);
+            Folders.Add("/", dir);
+            int nextLine = ProcessFolderUntilNextCommand(lines, 2, dir);
+
+            for (int i = nextLine; i < lines.Length; i++)
             {
-                // setup root
-                if (lines[0] != "cd /") throw new Exception();
-                if (lines[1] != "$ ls") throw new Exception();
-
-                var dir = new Folder("/", null);
-                Folders.Add("/", dir);
-                nextLine = ProcessFolderUntilNextCommand(lines, 2, dir);
-            }
-
-
-            for (int i = 2; i < lines.Length; i++)
-            {
+                // expectation that we process a new command
                 var line = lines[i];
                 if (!line.StartsWith("$ ")) throw new Exception();
 
