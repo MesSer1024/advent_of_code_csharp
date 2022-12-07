@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace advent_of_code_csharp.Source
@@ -39,29 +41,25 @@ $ ls
             int result = 0;
             int result2 = 0;
 
-            foreach (var line in input)
-            {
-                result += ParseFirst(line);
-            }
+            PopulateData(input);
 
-            foreach (var line in input)
-            {
-                result2 += ParseSecond(line);
-            }
+            result = ParseFirst();
+
+            result2 += ParseSecond();
 
             Assert.AreEqual(95437, result);
-            Assert.AreEqual(0, result2);
+            Assert.AreEqual(24933642, result2);
         }
 
         private class Folder
         {
             public int NumBytesInFolder;
-            // public string Id;
+            public string Id;
             public Folder? Parent;
 
             public Folder(string id, Folder? parent)
             {
-                // Id = id;
+                Id = id;
                 Parent = parent;
                 NumBytesInFolder = 0;
             }
@@ -69,52 +67,101 @@ $ ls
 
         private Dictionary<string, Folder> Folders = new();
 
-        private int ParseFirst(string[] lines)
+        private void PopulateDirectories(string[] lines)
         {
-            int output = 0;
-
             // find all directories with a total size <= 100.000 (parent directory and child directory can both be unique entries)
             // sum the size of all filtered directories
 
-            if (lines[0] != "cd /") throw new Exception();
+            Folders.Clear();
+            if (lines[0] != "$ cd /") throw new Exception();
             if (lines[1] != "$ ls") throw new Exception();
 
             // setup root
             Folder dir = new Folder("/", null);
             Folders.Add("/", dir);
-            int nextLine = ProcessFolderUntilNextCommand(lines, 2, dir);
+            int begin = ProcessFolderUntilNextCommand(lines, 2, dir) + 1;
 
-            for (int i = nextLine; i < lines.Length; i++)
+            for (int i = begin; i < lines.Length; i++)
             {
                 // expectation that we process a new command
                 var line = lines[i];
                 if (!line.StartsWith("$ ")) throw new Exception();
 
-                if (line.StartsWith("$ cd "))
+                if (line.StartsWith("$ cd /"))
+                {
+                    while (dir.Parent != null)
+                    {
+                        dir = dir.Parent;
+                    }
+                }
+                else if (line.StartsWith("$ cd .."))
+                {
+                    if (dir.Parent == null) throw new Exception();
+
+                    dir = dir.Parent;
+                }
+                else if (line.StartsWith("$ cd"))
                 {
                     var name = line[5..];
-                    var dir = Folders[name];
+                    var sb = new StringBuilder();
+                    FullPathName(sb, dir);
+                    sb.Append("/" + name);
+                    var fullPath = sb.ToString();
+                    dir = Folders[fullPath];
+                }
+                else if (line.StartsWith("$ ls"))
+                {
+                    i = ProcessFolderUntilNextCommand(lines, i + 1, dir);
+                }
+                else
+                {
+                    throw new NotImplementedException();
                 }
             }
+        }
 
+        private void FullPathName(StringBuilder sb, Folder folder)
+        {
+            if (folder.Parent != null)
+            {
+                FullPathName(sb, folder.Parent);
+            }
 
-            return output;
+            sb.Append("/" + folder.Id);
         }
 
         private int ProcessFolderUntilNextCommand(string[] lines, int begin, Folder folder)
         {
-            for (int i = begin; i < lines.Length; i++)
+            void appendBytesRecursively(Folder? recurse, int bytesInFolder)
+            {
+                while (recurse != null)
+                {
+                    recurse.NumBytesInFolder += bytesInFolder;
+                    recurse = recurse.Parent;
+                }
+
+            }
+
+            int i = begin;
+            for (; i < lines.Length; i++)
             {
                 var line = lines[i];
                 if (line.StartsWith('$'))
                 {
-                    // new command, abort
-                    return i - 1;
+                    // new command, should abort
+                    break;
                 }
                 else if (line.StartsWith("dir "))
                 {
                     var name = line[4..];
-                    Folders.Add(name, new Folder(name, folder));
+
+                    var sb = new StringBuilder();
+                    var dir = new Folder(name, folder);
+
+                    FullPathName(sb, dir);
+                    var fullPath = sb.ToString();
+
+                    Folders.Add(fullPath, dir);
                 }
                 else
                 {
@@ -128,35 +175,71 @@ $ ls
                     folder.NumBytesInFolder += fileSize;
                 }
             }
-            return lines.Length;
+
+            appendBytesRecursively(folder.Parent, folder.NumBytesInFolder);
+            return i-1;
         }
 
-        private int ParseSecond(string line)
+        private int ParseFirst()
         {
-            return 0;
+            int result = 0;
+            foreach (var pair in Folders)
+            {
+                if (pair.Value.NumBytesInFolder < 100000)
+                {
+                    result += pair.Value.NumBytesInFolder;
+                }
+            }
+
+            return result;
+        }
+
+        private int ParseSecond()
+        {
+            // find a directory that we can delete that will make the 'total space available' above 30.000.000
+            const int TotalDiskCapacity = 70000000;
+            const int DiskRequirementForInstall = 30000000;
+            int DiskFreeSpace = TotalDiskCapacity - Folders["/"].NumBytesInFolder;
+            int neededSpace = DiskRequirementForInstall - DiskFreeSpace;
+
+            int bestCandidate = int.MaxValue;
+
+            foreach(var pair in Folders)
+            {
+                int folderSize = pair.Value.NumBytesInFolder;
+                if(folderSize >= neededSpace)
+                {
+                    if(folderSize < bestCandidate)
+                    {
+                        bestCandidate = folderSize;
+                    }
+                }
+            }
+
+            return bestCandidate;
         }
 
         public void PopulateData(string[] lines)
         {
             _input = lines;
+            PopulateDirectories(_input);
         }
 
         public void ProcessFirst()
         {
-            int result = 0;
-
+            int result = ParseFirst();
 
             Console.WriteLine($"{Identifier}.1 result is {result} ");
-            Assert.AreEqual(0, result);
+            Assert.AreEqual(1141028, result);
         }
 
         public void ProcessSecond()
         {
-            int result = 0;
+            int result = ParseSecond();
 
 
             Console.WriteLine($"{Identifier}.2 result is {result} ");
-            Assert.AreEqual(0, result);
+            Assert.AreEqual(8278005, result);
         }
     }
 }
