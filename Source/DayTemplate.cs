@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 
 namespace advent_of_code_csharp.Source
 {
-    public class DayTemplate : IDay
+    public class DayX : IDay
     {
-        public string Identifier => "day5";
+        public string Identifier => "dayX";
         private string[] _input = Array.Empty<string>();
 
         public void ProcessExample()
@@ -16,31 +16,29 @@ namespace advent_of_code_csharp.Source
 
             ".Split(Environment.NewLine);
 
-            int result = 0;
-            int result2 = 0;
+            PopulateData(input);
 
-            foreach(var line in input)
-            {
-                result += ParseFirst(line);
-            }
-
-            foreach(var line in input)
-            {
-                result2 += ParseSecond(line);
-            }
+            int result = ParseFirst();
+            int result2 = ParseSecond();
 
             Assert.AreEqual(0, result);
             Assert.AreEqual(0, result2);
         }
 
-        private int ParseFirst(string line)
+        private int ParseFirst()
         {
-            return 0;
+            int result = 0;
+
+
+            return result;
         }
 
-        private int ParseSecond(string line)
+        private int ParseSecond()
         {
-            return 0;
+            int result = 0;
+
+
+            return result;
         }
 
         public void PopulateData(string[] lines)
@@ -50,12 +48,7 @@ namespace advent_of_code_csharp.Source
 
         public void ProcessFirst()
         {
-            int result = 0;
-
-            foreach(var line in _input)
-            {
-                result += ParseFirst(line);
-            }
+            int result = ParseFirst();
 
             Console.WriteLine($"{Identifier}.1 result is {result} ");
             Assert.AreEqual(0, result);
@@ -63,12 +56,7 @@ namespace advent_of_code_csharp.Source
 
         public void ProcessSecond()
         {
-            int result = 0;
-
-            foreach(var line in _input)
-            {
-                result += ParseSecond(line);
-            }
+            int result = ParseSecond();
 
             Console.WriteLine($"{Identifier}.2 result is {result} ");
             Assert.AreEqual(0, result);
