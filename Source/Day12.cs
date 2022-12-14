@@ -106,6 +106,15 @@ namespace advent_of_code_csharp.Source
                     action(other);
                 }
             }
+
+            internal void ClearNodeState()
+            {
+                foreach(var node in Nodes)
+                {
+                    node.Parent = null;
+                    node.NumSteps = 0;
+                }
+            }
         }
 
         public string Identifier => "day12";
@@ -125,9 +134,10 @@ abdefghi".Split(Environment.NewLine);
             int result = ParseFirst();
             PrintGraph();
             int result2 = ParseSecond();
+            PrintGraph();
 
             Assert.AreEqual(31, result);
-            Assert.AreEqual(0, result2);
+            Assert.AreEqual(29, result2);
         }
 
         private void PrintGraph()
@@ -143,7 +153,7 @@ abdefghi".Split(Environment.NewLine);
             for (int i = 0; i < _input.Length; i++)
             {
                 var sb = new StringBuilder(_input[0].Length);
-                foreach(var c in _input[0])
+                foreach (var c in _input[0])
                     sb.Append('.');
                 output[i] = sb;
             }
@@ -153,10 +163,10 @@ abdefghi".Split(Environment.NewLine);
                 var sb = output[node.Parent.y];
                 var parent = node.Parent;
 
-                if(parent.X != node.X)
+                if (parent.X != node.X)
                 {
                     // x-axis
-                    if(parent.X > node.X)
+                    if (parent.X > node.X)
                     {
                         // parent is to the left
                         sb[parent.X] = '<';
@@ -169,7 +179,7 @@ abdefghi".Split(Environment.NewLine);
                 else
                 {
                     // y-axis
-                    if(parent.y > node.y)
+                    if (parent.y > node.y)
                     {
                         // parent is above
                         sb[parent.X] = '^';
@@ -185,7 +195,7 @@ abdefghi".Split(Environment.NewLine);
 
 
 
-            foreach(var sb in output)
+            foreach (var sb in output)
             {
                 Console.WriteLine(sb);
             }
@@ -258,10 +268,99 @@ abdefghi".Split(Environment.NewLine);
 
         private int ParseSecond()
         {
-            int result = 0;
+            if (_graph == null) throw new Exception();
 
+            int NumNodes = _graph.Nodes.Count;
+            List<Node> startNodes = new();
 
-            return result;
+            foreach (var node in _graph.Nodes)
+            {
+                if (node.Elevation == 'a')
+                {
+                    startNodes.Add(node);
+                }
+            }
+
+            Node[] queue = new Node[NumNodes];
+            bool[] isQueued = new bool[NumNodes];
+
+            Node bestStart;
+            int fastestPath = int.MaxValue;
+
+            foreach (var startNode in startNodes)
+            {
+                for (int i = 0; i < isQueued.Length; i++)
+                {
+                    isQueued[i] = false;
+                }
+
+                // _graph.ClearNodeState();
+                startNode.Parent = null;
+                startNode.NumSteps = 0;
+
+                int iterationIt = 0;
+                int placementIt = 0;
+                bool reachedGoal = false;
+
+                queue[placementIt++] = startNode;
+                isQueued[startNode.Index] = true;
+
+                while (iterationIt < placementIt && reachedGoal == false /* #todo : might need to finish queue? */)
+                {
+                    var node = queue[iterationIt++];
+
+                    _graph.ForeachUnvisitedNeighbour(node, neighbour =>
+                    {
+                        var prevHeight = node.Elevation;
+                        var neighbourHeight = neighbour.Elevation;
+
+                        if (neighbourHeight > prevHeight + 1)
+                        {
+                            // ignore nodes with bad elevation
+                            return;
+                        }
+
+                        if (neighbour == _graph.goal)
+                        {
+                            neighbour.Parent = node;
+                            neighbour.NumSteps = node.NumSteps + 1;
+                            reachedGoal = true;
+                            return;
+                        }
+
+                        if (isQueued[neighbour.Index])
+                        {
+                            // revisiting node
+                            bool isBetterParent = neighbour.Parent != node && (neighbour.NumSteps > (node.NumSteps + 1));
+                            if (isBetterParent)
+                            {
+                                neighbour.Parent = node;
+                                neighbour.NumSteps = node.NumSteps + 1;
+                                throw new Exception(); // #todo : also need to process all nodes linking to this parent if we have allready processed this item inside queue... ??
+                            }
+                        }
+                        else
+                        {
+                            // first visit
+                            isQueued[neighbour.Index] = true;
+                            neighbour.Parent = node;
+                            neighbour.NumSteps = node.NumSteps + 1;
+                            queue[placementIt++] = neighbour;
+                        }
+                    });
+                }
+
+                int numSteps =_graph.goal.NumSteps;
+                if(numSteps < fastestPath)
+                {
+                    fastestPath = numSteps;
+                    bestStart = startNode;
+                    Console.WriteLine($"Steps: {fastestPath} start: ({bestStart.X},{bestStart.y})");
+                    PrintGraph();
+                }
+            }
+
+            return fastestPath;
         }
 
         public void PopulateData(string[] lines)
@@ -285,7 +384,7 @@ abdefghi".Split(Environment.NewLine);
             int result = ParseSecond();
 
             Console.WriteLine($"{Identifier}.2 result is {result} ");
-            Assert.AreEqual(0, result);
+            Assert.AreEqual(443, result);
         }
     }
 }
